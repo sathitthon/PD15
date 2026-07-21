@@ -1,0 +1,3264 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>สถานะห้องพัก · 2Be Home PD15</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Kanit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#2b2438;
+    --paper:#fbf7f2;
+    --card-shadow: 0 2px 6px rgba(43,36,56,.12), 0 1px 2px rgba(43,36,56,.08);
+    --amber:#f0a63a;
+    --red:#e2543f;
+    --line: rgba(43,36,56,.12);
+  }
+  *{ box-sizing:border-box; }
+  body{
+    margin:0;
+    background: var(--paper);
+    background-image:
+      radial-gradient(circle at 8% 12%, rgba(155,127,209,.10), transparent 40%),
+      radial-gradient(circle at 92% 88%, rgba(244,166,198,.12), transparent 40%);
+    color:var(--ink);
+    font-family:'Kanit', sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding-bottom:60px;
+  }
+  h1,h2,.num,.room-no,.tab, .brand{ font-family:'Space Grotesk','Kanit',sans-serif; }
+
+  header{
+    padding:22px 18px 14px;
+    max-width:1100px;
+    margin:0 auto;
+  }
+  .brand{
+    font-size:13px;
+    letter-spacing:.14em;
+    text-transform:uppercase;
+    color:#8b7fa8;
+    font-weight:600;
+    margin-bottom:4px;
+  }
+  h1{
+    font-size:26px;
+    margin:0 0 4px;
+    font-weight:700;
+    letter-spacing:-.01em;
+  }
+  .sub{
+    font-size:13.5px;
+    color:#6b6178;
+    margin:0;
+  }
+
+  .viewToggle{
+    display:flex;
+    gap:6px;
+    margin-top:16px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:4px;
+    width:fit-content;
+  }
+  .viewToggle button{
+    border:none;
+    background:transparent;
+    padding:8px 16px;
+    border-radius:999px;
+    font-family:'Kanit',sans-serif;
+    font-size:13.5px;
+    font-weight:500;
+    color:#6b6178;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .viewToggle button.active{
+    background:var(--ink);
+    color:#fff;
+  }
+
+  .summary{
+    max-width:1100px;
+    margin:16px auto 0;
+    padding:0 18px;
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+  }
+  .chip{
+    display:flex;
+    align-items:center;
+    gap:7px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:8px 12px;
+    font-size:12.5px;
+    cursor:pointer;
+    user-select:none;
+    transition:.15s;
+  }
+  .chip:hover{ transform:translateY(-1px); box-shadow:var(--card-shadow); }
+  .chip.dimmed{ opacity:.35; }
+  .chip .dot{ width:11px; height:11px; border-radius:4px; border:1px solid rgba(0,0,0,.15); flex:none; }
+  .chip .num{ font-weight:700; font-size:13.5px; }
+  .chip .lbl{ color:#5a5166; }
+
+  .floorTabs{
+    max-width:1100px;
+    margin:18px auto 0;
+    padding:0 18px;
+    display:flex;
+    gap:8px;
+    overflow-x:auto;
+  }
+  .tab{
+    flex:none;
+    width:46px; height:46px;
+    border-radius:14px;
+    border:none;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    cursor:pointer;
+    font-weight:700;
+    font-size:16px;
+    color:#fff;
+    opacity:.55;
+    transition:.15s;
+  }
+  .tab span{ font-family:'Kanit',sans-serif; font-weight:400; font-size:8.5px; opacity:.85; }
+  .tab.active{ opacity:1; transform:scale(1.06); box-shadow:var(--card-shadow); }
+
+  main{
+    max-width:1100px;
+    margin:18px auto 0;
+    padding:0 18px;
+  }
+  .wing{ margin-bottom:22px; }
+  .wingLabel{
+    font-size:11.5px;
+    color:#8b7fa8;
+    font-weight:600;
+    letter-spacing:.06em;
+    margin:0 0 8px 2px;
+  }
+  .roomGrid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:10px;
+  }
+  @media(min-width:640px){ .roomGrid{ grid-template-columns:repeat(5,1fr); } }
+  @media(min-width:900px){ .roomGrid{ grid-template-columns:repeat(8,1fr); } }
+
+  .card{
+    position:relative;
+    border-radius:13px;
+    padding:10px 8px 16px;
+    cursor:pointer;
+    box-shadow:var(--card-shadow);
+    border:1px solid rgba(0,0,0,.06);
+    min-height:74px;
+    display:flex; flex-direction:column; justify-content:space-between;
+    transition:.12s;
+    overflow:hidden;
+  }
+  .card:active{ transform:scale(.97); }
+  .card .hole{
+    position:absolute; top:6px; right:7px;
+    width:8px; height:8px; border-radius:50%;
+    background:rgba(255,255,255,.65);
+    box-shadow:inset 0 1px 2px rgba(0,0,0,.25);
+  }
+  .card .room-no{
+    font-size:18px; font-weight:700; line-height:1;
+  }
+  .card .tenant{
+    font-size:9.5px;
+    color:rgba(43,36,56,.72);
+    margin-top:4px;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  }
+  .card .badges{
+    position:absolute; top:6px; left:6px;
+    display:flex; gap:3px;
+  }
+  .badges .b{
+    width:7px; height:7px; border-radius:50%;
+    border:1px solid rgba(255,255,255,.8);
+  }
+  .card .barcode{
+    position:absolute; left:8px; right:8px; bottom:5px; height:6px;
+    background-image: repeating-linear-gradient(90deg, rgba(43,36,56,.35) 0 1px, transparent 1px 3px);
+    opacity:.5;
+    border-radius:1px;
+  }
+  .card .cornerTag{
+    position:absolute; bottom:5px; right:8px;
+    font-size:7.5px; color:rgba(43,36,56,.4); font-weight:600;
+  }
+
+  .empty{
+    grid-column:1/-1;
+    text-align:center;
+    padding:30px 10px;
+    color:#8b7fa8;
+    font-size:13px;
+  }
+
+  /* detail panel */
+  .overlay{
+    position:fixed; inset:0; background:rgba(43,36,56,.35);
+    display:flex; align-items:flex-end; justify-content:center;
+    z-index:50;
+  }
+  .overlay.hidden{ display:none; }
+  .panel{
+    background:#fff;
+    width:100%; max-width:480px;
+    border-radius:20px 20px 0 0;
+    padding:22px 22px 28px;
+    box-shadow:0 -8px 30px rgba(0,0,0,.2);
+    max-height:82vh; overflow-y:auto;
+  }
+  @media(min-width:640px){
+    .overlay{ align-items:center; }
+    .panel{ border-radius:20px; }
+  }
+  .panel .ptop{ display:flex; align-items:center; justify-content:space-between; margin-bottom:14px; }
+  .panel h2{ font-size:26px; margin:0; }
+  .panel .statusPill{
+    display:inline-block; padding:5px 12px; border-radius:999px;
+    font-size:12px; font-weight:600; margin-top:2px;
+  }
+  .panel .close{
+    border:none; background:#f1eef7; width:32px; height:32px; border-radius:50%;
+    font-size:16px; cursor:pointer; color:#6b6178;
+  }
+  .rows{ margin-top:16px; display:flex; flex-direction:column; gap:11px; }
+  .row{ display:flex; justify-content:space-between; gap:14px; font-size:13.5px; border-bottom:1px dashed var(--line); padding-bottom:9px; }
+  .row .k{ color:#8b7fa8; flex:none; }
+  .row .v{ text-align:right; font-weight:500; }
+  .noteBox{ margin-top:14px; background:#f8f4fb; border-radius:12px; padding:12px 14px; font-size:13px; color:#4b3f5c; white-space:pre-line; }
+  .expiryBanner{ margin-top:14px; border-radius:12px; padding:10px 14px; font-size:12.5px; font-weight:500; }
+
+  .layoutToggle{
+    display:flex;
+    gap:6px;
+    margin-top:10px;
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:999px;
+    padding:4px;
+    width:fit-content;
+  }
+  .layoutToggle button{
+    border:none;
+    background:transparent;
+    padding:7px 14px;
+    border-radius:999px;
+    font-family:'Kanit',sans-serif;
+    font-size:12.5px;
+    font-weight:500;
+    color:#6b6178;
+    cursor:pointer;
+    transition:.15s;
+  }
+  .layoutToggle button.active{
+    background:#efe9f8;
+    color:var(--ink);
+  }
+
+  .wbScroll{
+    overflow-x:auto;
+    -webkit-overflow-scrolling:touch;
+    padding-bottom:8px;
+    border-radius:14px;
+  }
+  .wbGrid{
+    display:grid;
+    grid-template-columns: 58px repeat(20, 40px);
+    gap:4px;
+    width:max-content;
+  }
+  .wbWingHeader{
+    font-size:9.5px;
+    color:#8b7fa8;
+    font-weight:600;
+    letter-spacing:.03em;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:3px 2px 7px;
+  }
+  .wbFloorLabel{
+    position:sticky; left:0; z-index:3;
+    background:var(--paper);
+    display:flex; align-items:center; justify-content:center;
+    border-radius:9px;
+    color:#fff; font-weight:700; font-size:13px;
+    font-family:'Space Grotesk',sans-serif;
+  }
+  .wbCell{
+    border-radius:7px;
+    display:flex; align-items:center; justify-content:center;
+    font-size:10px; font-weight:600;
+    cursor:pointer;
+    position:relative;
+    min-height:36px;
+    box-shadow:0 1px 2px rgba(43,36,56,.12);
+    transition:.12s;
+  }
+  .wbCell.muted{ background:#efe9f8 !important; color:#b7abc9; cursor:default; box-shadow:none; }
+  .wbCell.dimmed{ opacity:.3; }
+  .wbCell:active{ transform:scale(.94); }
+  .wbCell .wbDot{
+    position:absolute; top:-3px; right:-3px;
+    width:8px; height:8px; border-radius:50%;
+    border:1.5px solid #fff;
+  }
+  .wbLegendNote{ font-size:11px; color:#a89dbb; margin:8px 2px 0; }
+
+  footer{ max-width:1100px; margin:26px auto 0; padding:0 18px; font-size:11px; color:#a89dbb; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">2Be Home · Praditmanutham 15</div>
+  <h1>สถานะห้องพักทั้งหมด</h1>
+  <p class="sub" id="genDate"></p>
+  <div class="viewToggle">
+    <button id="btnStaff" class="active">มุมมองพนักงาน</button>
+    <button id="btnCustomer">มุมมองลูกค้า (โพย)</button>
+  </div>
+  <div class="layoutToggle">
+    <button id="btnWholeBuilding">ภาพรวมทั้งตึก</button>
+    <button id="btnByFloor" class="active">แยกทีละชั้น</button>
+  </div>
+</header>
+
+<div class="summary" id="summary"></div>
+
+<nav class="floorTabs" id="floorTabs"></nav>
+
+<main id="floorContent"></main>
+
+<footer>ข้อมูลจากไฟล์ "สรุปสถานะห้องพัก" — อัปเดตล่าสุดตามไฟล์ที่ได้รับ ไม่ใช่แบบเรียลไทม์</footer>
+
+<div class="overlay hidden" id="overlay">
+  <div class="panel">
+    <div class="ptop">
+      <div>
+        <h2 id="pRoom">-</h2>
+        <span class="statusPill" id="pStatusPill">-</span>
+      </div>
+      <button class="close" id="pClose">✕</button>
+    </div>
+    <div id="pExpiry"></div>
+    <div class="rows" id="pRows"></div>
+    <div id="pNoteWrap"></div>
+  </div>
+</div>
+
+<script>
+// สร้างจาก extract_rooms.py — ห้ามแก้ไขตรงนี้ตรงๆ ให้แก้ที่ไฟล์ Excel ต้นทางแล้วรันสคริปต์ใหม่
+const ROOM_DASHBOARD_DATA = {
+  "rooms": [
+    {
+      "room": "201",
+      "floor": 2,
+      "col": 1,
+      "colLetter": "A",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-12-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "202",
+      "floor": 2,
+      "col": 2,
+      "colLetter": "B",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-05-31",
+      "tenantNote": null
+    },
+    {
+      "room": "203",
+      "floor": 2,
+      "col": 3,
+      "colLetter": "C",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "1 bedroom",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-01-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ/ย้ายมาจาก601"
+    },
+    {
+      "room": "204",
+      "floor": 2,
+      "col": 4,
+      "colLetter": "D",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-08-31",
+      "tenantNote": null
+    },
+    {
+      "room": "205",
+      "floor": 2,
+      "col": 5,
+      "colLetter": "E",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "206",
+      "floor": 2,
+      "col": 6,
+      "colLetter": "F",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": null
+    },
+    {
+      "room": "207",
+      "floor": 2,
+      "col": 7,
+      "colLetter": "G",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": "ไม่เอาโต๊ะขาว+สตูลที่นั่ง\n\nเปลี่ยนคอมเพลสเซอร์ เอาจากห้อง401มาใส่ ของเดิมรั่ว",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-08-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "208",
+      "floor": 2,
+      "col": 8,
+      "colLetter": "H",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": true,
+      "status": "damaged_heavy",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": null,
+      "tenantNote": "ห้องชำรุด"
+    },
+    {
+      "room": "209",
+      "floor": 2,
+      "col": 9,
+      "colLetter": "I",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": "คืน ชั้นวางTV./โทรศัพท์/สตูที่นั้ง",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": null
+    },
+    {
+      "room": "210",
+      "floor": 2,
+      "col": 10,
+      "colLetter": "J",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-08-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "211",
+      "floor": 2,
+      "col": 11,
+      "colLetter": "K",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": "ห้องช่างอาคาร.\nไม่มีเตียง",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": "ห้อง ช่างอาคาร"
+    },
+    {
+      "room": "212",
+      "floor": 2,
+      "col": 12,
+      "colLetter": "L",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-09-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "213",
+      "floor": 2,
+      "col": 13,
+      "colLetter": "M",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-02-28",
+      "tenantNote": null
+    },
+    {
+      "room": "214",
+      "floor": 2,
+      "col": 14,
+      "colLetter": "N",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-09-30",
+      "tenantNote": null
+    },
+    {
+      "room": "215",
+      "floor": 2,
+      "col": 15,
+      "colLetter": "O",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "damaged_heavy",
+      "fontFlag": null,
+      "note": "user1:\nชำรุด/ห้องทานข้าวพนักงาน",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": null,
+      "tenantNote": "ห้องชำรุด"
+    },
+    {
+      "room": "216",
+      "floor": 2,
+      "col": 16,
+      "colLetter": "P",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": true,
+      "status": "damaged_heavy",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": null,
+      "tenantNote": "ห้องชำรุด"
+    },
+    {
+      "room": "217",
+      "floor": 2,
+      "col": 17,
+      "colLetter": "Q",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": null
+    },
+    {
+      "room": "218",
+      "floor": 2,
+      "col": 18,
+      "colLetter": "R",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": "ห้อง รปภ.",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": "ห้องรปภ."
+    },
+    {
+      "room": "219",
+      "floor": 2,
+      "col": 19,
+      "colLetter": "S",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-05-31",
+      "tenantNote": null
+    },
+    {
+      "room": "220",
+      "floor": 2,
+      "col": 20,
+      "colLetter": "T",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": true,
+      "status": "damaged_light",
+      "fontFlag": null,
+      "note": "ห้องช่าง",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": null,
+      "tenantNote": "OFFICE"
+    },
+    {
+      "room": "301",
+      "floor": 3,
+      "col": 1,
+      "colLetter": "A",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "302",
+      "floor": 3,
+      "col": 2,
+      "colLetter": "B",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": "ห้อง รปภ./ประตูไม้บุบด้านนอกห้อง",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-06-30",
+      "tenantNote": "ห้อง รปภ./แม่บ้าน"
+    },
+    {
+      "room": "303",
+      "floor": 3,
+      "col": 3,
+      "colLetter": "C",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "1 bedroom",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-12-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "304",
+      "floor": 3,
+      "col": 4,
+      "colLetter": "D",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "305",
+      "floor": 3,
+      "col": 5,
+      "colLetter": "E",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-01-31",
+      "tenantNote": null
+    },
+    {
+      "room": "306",
+      "floor": 3,
+      "col": 6,
+      "colLetter": "F",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": null
+    },
+    {
+      "room": "307",
+      "floor": 3,
+      "col": 7,
+      "colLetter": "G",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": "คีย์การ์ด 3 ใบ (หาย 1ใบ)"
+    },
+    {
+      "room": "308",
+      "floor": 3,
+      "col": 8,
+      "colLetter": "H",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": "ย้ายมาจาก 305"
+    },
+    {
+      "room": "309",
+      "floor": 3,
+      "col": 9,
+      "colLetter": "I",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-07-31",
+      "tenantNote": null
+    },
+    {
+      "room": "310",
+      "floor": 3,
+      "col": 10,
+      "colLetter": "J",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-12-31",
+      "tenantNote": null
+    },
+    {
+      "room": "311",
+      "floor": 3,
+      "col": 11,
+      "colLetter": "K",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "312",
+      "floor": 3,
+      "col": 12,
+      "colLetter": "L",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-01-31",
+      "tenantNote": "เดิมราคา 4700 บาท"
+    },
+    {
+      "room": "313",
+      "floor": 3,
+      "col": 13,
+      "colLetter": "M",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "314",
+      "floor": 3,
+      "col": 14,
+      "colLetter": "N",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-04-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ ใบแรกฟรีหาย"
+    },
+    {
+      "room": "315",
+      "floor": 3,
+      "col": 15,
+      "colLetter": "O",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ/เดิมราคา 5200 บาท"
+    },
+    {
+      "room": "316",
+      "floor": 3,
+      "col": 16,
+      "colLetter": "P",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-05-31",
+      "tenantNote": "คีย์การ์ด 3 ใบ ใบแรกฟรีหาย"
+    },
+    {
+      "room": "317",
+      "floor": 3,
+      "col": 17,
+      "colLetter": "Q",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-07-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "318",
+      "floor": 3,
+      "col": 18,
+      "colLetter": "R",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-01-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "319",
+      "floor": 3,
+      "col": 19,
+      "colLetter": "S",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-02-28",
+      "tenantNote": "คีย์การ์ด 3 ใบ ใบแรกฟรีหาย/เดิมราคา 4700 บาท"
+    },
+    {
+      "room": "320",
+      "floor": 3,
+      "col": 20,
+      "colLetter": "T",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": true,
+      "status": "damaged_heavy",
+      "fontFlag": null,
+      "note": "user1:\nห้องชำรุด",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": null,
+      "tenantNote": null
+    },
+    {
+      "room": "401",
+      "floor": 4,
+      "col": 1,
+      "colLetter": "A",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "reserved",
+      "fontFlag": null,
+      "note": "แอร์มิตซู มิ.ย.69",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-12-31",
+      "tenantNote": null
+    },
+    {
+      "room": "402",
+      "floor": 4,
+      "col": 2,
+      "colLetter": "B",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": "พื้นspc ปูใหม่/ที่นอนใหม่\nมิ.ย.69",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-12-31",
+      "tenantNote": null
+    },
+    {
+      "room": "403",
+      "floor": 4,
+      "col": 3,
+      "colLetter": "C",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "1 bedroom",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ/ย้ายมาจาก606"
+    },
+    {
+      "room": "404",
+      "floor": 4,
+      "col": 4,
+      "colLetter": "D",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": "ไม่เอาโต๊ะขาว/ฟูก",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "405",
+      "floor": 4,
+      "col": 5,
+      "colLetter": "E",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-05-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "406",
+      "floor": 4,
+      "col": 6,
+      "colLetter": "F",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": "ไม่เอาโต๊ะขาวหน้าห้องน้ำ",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-01-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ ใบแรกหาย"
+    },
+    {
+      "room": "407",
+      "floor": 4,
+      "col": 7,
+      "colLetter": "G",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": "พื้นบวม",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-06-30",
+      "tenantNote": "พื้นบวม"
+    },
+    {
+      "room": "408",
+      "floor": 4,
+      "col": 8,
+      "colLetter": "H",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-09-30",
+      "tenantNote": null
+    },
+    {
+      "room": "409",
+      "floor": 4,
+      "col": 9,
+      "colLetter": "I",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-09-30",
+      "tenantNote": "คีย์การ์ด 3 ใบ"
+    },
+    {
+      "room": "410",
+      "floor": 4,
+      "col": 10,
+      "colLetter": "J",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": null
+    },
+    {
+      "room": "411",
+      "floor": 4,
+      "col": 11,
+      "colLetter": "K",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-08-31",
+      "tenantNote": "ผู้เช่าเก่า 414"
+    },
+    {
+      "room": "412",
+      "floor": 4,
+      "col": 12,
+      "colLetter": "L",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": "ห้องแม่บ้าน\nพื้นชำรุดทั้งห้อง",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-01-31",
+      "tenantNote": "ห้องแม่บ้าน"
+    },
+    {
+      "room": "413",
+      "floor": 4,
+      "col": 13,
+      "colLetter": "M",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": "user1:\nพื้นหน้าห้องน้ำบวม",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-09-30",
+      "tenantNote": "ราคาเดิม 4,700บาท/คีย์การ์ด 3 ใบ ใบแรกหาย"
+    },
+    {
+      "room": "414",
+      "floor": 4,
+      "col": 14,
+      "colLetter": "N",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": null
+    },
+    {
+      "room": "415",
+      "floor": 4,
+      "col": 15,
+      "colLetter": "O",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": "user1:\nเอาตู้เย็นมาจาก614\nจ่ายก่อนเช่า",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-02-28",
+      "tenantNote": "ราคาเดิม 4,700บาท/คีย์การ์ด 3 ใบ"
+    },
+    {
+      "room": "416",
+      "floor": 4,
+      "col": 16,
+      "colLetter": "P",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-12-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "417",
+      "floor": 4,
+      "col": 17,
+      "colLetter": "Q",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": "คีย์การ์ด 3 ใบ ใบแรกหาย"
+    },
+    {
+      "room": "418",
+      "floor": 4,
+      "col": 18,
+      "colLetter": "R",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": null
+    },
+    {
+      "room": "419",
+      "floor": 4,
+      "col": 19,
+      "colLetter": "S",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": false,
+      "status": "damaged_heavy",
+      "fontFlag": null,
+      "note": "user1:\nกระจกห้องน้ำแตก/ประตูหน้าห้องแตกบุบ จากช่างอาคารเอก/เก็บของ",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": null,
+      "tenantNote": "ห้องชำรุด กระจกแตก"
+    },
+    {
+      "room": "420",
+      "floor": 4,
+      "col": 20,
+      "colLetter": "T",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": null
+    },
+    {
+      "room": "501",
+      "floor": 5,
+      "col": 1,
+      "colLetter": "A",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": null
+    },
+    {
+      "room": "502",
+      "floor": 5,
+      "col": 2,
+      "colLetter": "B",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-08-31",
+      "tenantNote": "คีย์การ์ด 4 ใบ ใบแรกหาย/ห้องคนดูแลคุณกิ่งแก้ว"
+    },
+    {
+      "room": "503",
+      "floor": 5,
+      "col": 3,
+      "colLetter": "C",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": "user1:\nลูกค้าขอยืมชุดโต๊ะเขียนหนังสือพร้อมโคมไฟ(เพื่อนนาย)",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "1 bedroom",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-08-31",
+      "tenantNote": "คีย์การ์ด 3 ใบ/เดิมราคา 7500 บาท"
+    },
+    {
+      "room": "504",
+      "floor": 5,
+      "col": 4,
+      "colLetter": "D",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "505",
+      "floor": 5,
+      "col": 5,
+      "colLetter": "E",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-12-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "506",
+      "floor": 5,
+      "col": 6,
+      "colLetter": "F",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": null
+    },
+    {
+      "room": "507",
+      "floor": 5,
+      "col": 7,
+      "colLetter": "G",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "508",
+      "floor": 5,
+      "col": 8,
+      "colLetter": "H",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": true,
+      "status": "moving_out",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-07-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "509",
+      "floor": 5,
+      "col": 9,
+      "colLetter": "I",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": "user1:\nเปลี่ยนก๊อกอ่าง/สายน้ำดี ใหม่ก่อนเข้า",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-01-31",
+      "tenantNote": "เดิมราคา 4700 บาท/คีย์การ์ด 2 ใบ ใบแรกชำรุด"
+    },
+    {
+      "room": "510",
+      "floor": 5,
+      "col": 10,
+      "colLetter": "J",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": "คีย์การ์ด 3 ใบ หาย 1 ใบ/เดิมราคา 4700 บาท"
+    },
+    {
+      "room": "511",
+      "floor": 5,
+      "col": 11,
+      "colLetter": "K",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": null
+    },
+    {
+      "room": "512",
+      "floor": 5,
+      "col": 12,
+      "colLetter": "L",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-12-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ/ระบบอยู่ก่อนแล้วค่อยจ่าย"
+    },
+    {
+      "room": "513",
+      "floor": 5,
+      "col": 13,
+      "colLetter": "M",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": null
+    },
+    {
+      "room": "514",
+      "floor": 5,
+      "col": 14,
+      "colLetter": "N",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-04-30",
+      "tenantNote": null
+    },
+    {
+      "room": "515",
+      "floor": 5,
+      "col": 15,
+      "colLetter": "O",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-08-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "516",
+      "floor": 5,
+      "col": 16,
+      "colLetter": "P",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-07-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "517",
+      "floor": 5,
+      "col": 17,
+      "colLetter": "Q",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-08-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "518",
+      "floor": 5,
+      "col": 18,
+      "colLetter": "R",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": false,
+      "status": "moving_out",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-12-31",
+      "tenantNote": "เช่าเก็บของ (ห้องชำรุด)/คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "519",
+      "floor": 5,
+      "col": 19,
+      "colLetter": "S",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-08-31",
+      "tenantNote": "เดิมราคา 4700 บาท/คีย์การ์ด 3 ใบ"
+    },
+    {
+      "room": "520",
+      "floor": 5,
+      "col": 20,
+      "colLetter": "T",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-05-31",
+      "tenantNote": null
+    },
+    {
+      "room": "601",
+      "floor": 6,
+      "col": 1,
+      "colLetter": "A",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "moving_out",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": null,
+      "tenantNote": null
+    },
+    {
+      "room": "602",
+      "floor": 6,
+      "col": 2,
+      "colLetter": "B",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-04-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "603",
+      "floor": 6,
+      "col": 3,
+      "colLetter": "C",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "reserved",
+      "fontFlag": null,
+      "note": "user1:\nย้ายมาจาก613/ยืมสายtv.",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "1 bedroom",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-06-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "604",
+      "floor": 6,
+      "col": 4,
+      "colLetter": "D",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "605",
+      "floor": 6,
+      "col": 5,
+      "colLetter": "E",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": "คีย์การ์ด 3 ใบ ใบแรกฟรีหาย"
+    },
+    {
+      "room": "606",
+      "floor": 6,
+      "col": 6,
+      "colLetter": "F",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "moving_out",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-07-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "607",
+      "floor": 6,
+      "col": 7,
+      "colLetter": "G",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-08-31",
+      "tenantNote": null
+    },
+    {
+      "room": "608",
+      "floor": 6,
+      "col": 8,
+      "colLetter": "H",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-01-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "609",
+      "floor": 6,
+      "col": 9,
+      "colLetter": "I",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-09-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ ใบแรกฟรีหาย"
+    },
+    {
+      "room": "610",
+      "floor": 6,
+      "col": 10,
+      "colLetter": "J",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-07-31",
+      "tenantNote": null
+    },
+    {
+      "room": "611",
+      "floor": 6,
+      "col": 11,
+      "colLetter": "K",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-08-31",
+      "tenantNote": null
+    },
+    {
+      "room": "612",
+      "floor": 6,
+      "col": 12,
+      "colLetter": "L",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "moving_out",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-07-31",
+      "tenantNote": null
+    },
+    {
+      "room": "613",
+      "floor": 6,
+      "col": 13,
+      "colLetter": "M",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "damaged_heavy",
+      "fontFlag": null,
+      "note": "- โบแอร์อยู่414\n- คอมเพลสเซอร์แอร์ไม่มีไปไว้ 707",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": null,
+      "tenantNote": null
+    },
+    {
+      "room": "614",
+      "floor": 6,
+      "col": 14,
+      "colLetter": "N",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-06-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "615",
+      "floor": 6,
+      "col": 15,
+      "colLetter": "O",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "damaged_heavy",
+      "fontFlag": null,
+      "note": "user1:\nฝ้าในห้องน้ำเชื้อราขึ้น ประตูห้องน้ำแตก\nแผงแอร์อยู่ห้อง219\nมอเตอร์แอร์อยู่ห้อง 514",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": null,
+      "tenantNote": "ห้องชำรุดน้ำรั่ว"
+    },
+    {
+      "room": "616",
+      "floor": 6,
+      "col": 16,
+      "colLetter": "P",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": null
+    },
+    {
+      "room": "617",
+      "floor": 6,
+      "col": 17,
+      "colLetter": "Q",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-04-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "618",
+      "floor": 6,
+      "col": 18,
+      "colLetter": "R",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": false,
+      "status": "moving_out",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": null,
+      "tenantNote": null
+    },
+    {
+      "room": "619",
+      "floor": 6,
+      "col": 19,
+      "colLetter": "S",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-09-30",
+      "tenantNote": null
+    },
+    {
+      "room": "620",
+      "floor": 6,
+      "col": 20,
+      "colLetter": "T",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": true,
+      "status": "moving_out",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": null,
+      "tenantNote": null
+    },
+    {
+      "room": "701",
+      "floor": 7,
+      "col": 1,
+      "colLetter": "A",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": "ย้ายมาจากห้อง414"
+    },
+    {
+      "room": "702",
+      "floor": 7,
+      "col": 2,
+      "colLetter": "B",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-08-31",
+      "tenantNote": null
+    },
+    {
+      "room": "703",
+      "floor": 7,
+      "col": 3,
+      "colLetter": "C",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "1 bedroom",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-06-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "704",
+      "floor": 7,
+      "col": 4,
+      "colLetter": "D",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-08-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "705",
+      "floor": 7,
+      "col": 5,
+      "colLetter": "E",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-06-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "706",
+      "floor": 7,
+      "col": 6,
+      "colLetter": "F",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-05-31",
+      "tenantNote": null
+    },
+    {
+      "room": "707",
+      "floor": 7,
+      "col": 7,
+      "colLetter": "G",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": "ซื้อสุญญากาศเพื่อติด 987.50บาท\nประตูห้องน้ำราว นิดหน่อย",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-06-30",
+      "tenantNote": null
+    },
+    {
+      "room": "708",
+      "floor": 7,
+      "col": 8,
+      "colLetter": "H",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-09-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "709",
+      "floor": 7,
+      "col": 9,
+      "colLetter": "I",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": "ไม่เอาโต๊ะขาวหน้าห้องน้ำ",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-05-31",
+      "tenantNote": null
+    },
+    {
+      "room": "710",
+      "floor": 7,
+      "col": 10,
+      "colLetter": "J",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": null
+    },
+    {
+      "room": "711",
+      "floor": 7,
+      "col": 11,
+      "colLetter": "K",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-12-31",
+      "tenantNote": "คีย์การ์ด 8 ใบ ใบแรกฟรีหาย"
+    },
+    {
+      "room": "712",
+      "floor": 7,
+      "col": 12,
+      "colLetter": "L",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-12-31",
+      "tenantNote": "ย้ายมาจาก 719"
+    },
+    {
+      "room": "713",
+      "floor": 7,
+      "col": 13,
+      "colLetter": "M",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": "พื้นบวม",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-09-30",
+      "tenantNote": "พื้นบวม/คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "714",
+      "floor": 7,
+      "col": 14,
+      "colLetter": "N",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": "ประตูไม้บุบด้านนอกห้อง",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-08-31",
+      "tenantNote": "ประตูไม้บุบด้านนอกห้อง/คีย์การ์ด 2 ใบ /เดิมราคา 5200 บาท"
+    },
+    {
+      "room": "715",
+      "floor": 7,
+      "col": 15,
+      "colLetter": "O",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-09-30",
+      "tenantNote": "เช่าจอด1คัน 2 ทะเบียน/คีย์การ์ด 2 ใบ/ย้ายมาจากห้อง 716"
+    },
+    {
+      "room": "716",
+      "floor": 7,
+      "col": 16,
+      "colLetter": "P",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": null
+    },
+    {
+      "room": "717",
+      "floor": 7,
+      "col": 17,
+      "colLetter": "Q",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": "ประตูไม้บุบด้านในห้อง",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-03-31",
+      "tenantNote": "ประตูไม้บุบด้านในห้อง/ คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "718",
+      "floor": 7,
+      "col": 18,
+      "colLetter": "R",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-03-31",
+      "tenantNote": "เดิมราคา 4700 บาท / คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "719",
+      "floor": 7,
+      "col": 19,
+      "colLetter": "S",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-09-30",
+      "tenantNote": "ย้ายมาจากห้อง 214"
+    },
+    {
+      "room": "720",
+      "floor": 7,
+      "col": 20,
+      "colLetter": "T",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-08-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ ใบแรกฟรีหาย"
+    },
+    {
+      "room": "801",
+      "floor": 8,
+      "col": 1,
+      "colLetter": "A",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "802",
+      "floor": 8,
+      "col": 2,
+      "colLetter": "B",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-07-31",
+      "tenantNote": null
+    },
+    {
+      "room": "803",
+      "floor": 8,
+      "col": 3,
+      "colLetter": "C",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "1 bedroom",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-04-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "804",
+      "floor": 8,
+      "col": 4,
+      "colLetter": "D",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-02-28",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "805",
+      "floor": 8,
+      "col": 5,
+      "colLetter": "E",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-07-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "806",
+      "floor": 8,
+      "col": 6,
+      "colLetter": "F",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-04-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "807",
+      "floor": 8,
+      "col": 7,
+      "colLetter": "G",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-06-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "808",
+      "floor": 8,
+      "col": 8,
+      "colLetter": "H",
+      "wing": "ฝั่งหลังลิฟท์",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-07-31",
+      "tenantNote": "คีย์การ์ด 3 ใบ"
+    },
+    {
+      "room": "809",
+      "floor": 8,
+      "col": 9,
+      "colLetter": "I",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-09-30",
+      "tenantNote": "เดิมราคา 5200 บาท"
+    },
+    {
+      "room": "810",
+      "floor": 8,
+      "col": 10,
+      "colLetter": "J",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ ใบแรกฟรีหาย"
+    },
+    {
+      "room": "811",
+      "floor": 8,
+      "col": 11,
+      "colLetter": "K",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-07-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "812",
+      "floor": 8,
+      "col": 12,
+      "colLetter": "L",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-03-31",
+      "tenantNote": null
+    },
+    {
+      "room": "813",
+      "floor": 8,
+      "col": 13,
+      "colLetter": "M",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-07-31",
+      "tenantNote": null
+    },
+    {
+      "room": "814",
+      "floor": 8,
+      "col": 14,
+      "colLetter": "N",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-09-30",
+      "tenantNote": "ญาติคุณกิ่งแก้ว"
+    },
+    {
+      "room": "815",
+      "floor": 8,
+      "col": 15,
+      "colLetter": "O",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-11-30",
+      "tenantNote": null
+    },
+    {
+      "room": "816",
+      "floor": 8,
+      "col": 16,
+      "colLetter": "P",
+      "wing": "ฝั่งทางเดินยาว",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2027-06-30",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "817",
+      "floor": 8,
+      "col": 17,
+      "colLetter": "Q",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": "คีย์การ์ด 2 ใบ"
+    },
+    {
+      "room": "818",
+      "floor": 8,
+      "col": 18,
+      "colLetter": "R",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": "purple_text",
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-09-30",
+      "tenantNote": null
+    },
+    {
+      "room": "819",
+      "floor": 8,
+      "col": 19,
+      "colLetter": "S",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": false,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": null,
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-10-31",
+      "tenantNote": null
+    },
+    {
+      "room": "820",
+      "floor": 8,
+      "col": 20,
+      "colLetter": "T",
+      "wing": "เห็นเซ็นทรัล",
+      "corner": true,
+      "status": "occupied",
+      "fontFlag": null,
+      "note": "เครื่องทำน้ำอุ่นใหม่ \nมิ.ย.69",
+      "tenantName": null,
+      "phone": null,
+      "roomType": "Studio",
+      "price": null,
+      "commonFee": null,
+      "contractEndDate": "2026-12-31",
+      "tenantNote": null
+    }
+  ],
+  "statusMeta": {
+    "occupied": {
+      "label": "มีลูกค้าอยู่แล้ว",
+      "swatch": "#B7D7A8",
+      "customer_visible": false
+    },
+    "reserved": {
+      "label": "จองแล้ว รอเตรียมส่งมอบ",
+      "swatch": "#F7D774",
+      "customer_visible": false
+    },
+    "damaged_heavy": {
+      "label": "ชำรุดหนัก",
+      "swatch": "#9C9C9C",
+      "customer_visible": false
+    },
+    "damaged_light": {
+      "label": "ชำรุดเล็กน้อย",
+      "swatch": "#7FD1E8",
+      "customer_visible": false
+    },
+    "moving_out": {
+      "label": "ลูกค้าจะย้ายออกสิ้นเดือน",
+      "swatch": "#FFFFFF",
+      "customer_visible": false
+    },
+    "vacant": {
+      "label": "ว่าง พร้อมให้เช่า",
+      "swatch": "#F4A6C6",
+      "customer_visible": true
+    },
+    "unknown": {
+      "label": "ไม่ทราบสถานะ (เช็คสีในไฟล์ต้นทาง)",
+      "swatch": "#FF0000",
+      "customer_visible": false
+    }
+  },
+  "expiryWarningDays": 60,
+  "expiryUrgentDays": 30,
+  "generatedAt": "2026-07-21",
+  "publicBuild": true
+};
+
+</script>
+<script>
+(function(){
+  const DATA = ROOM_DASHBOARD_DATA;
+  const rooms = DATA.rooms;
+  const statusMeta = DATA.statusMeta;
+  const WARN_DAYS = DATA.expiryWarningDays;
+  const URGENT_DAYS = DATA.expiryUrgentDays;
+  const PUBLIC_BUILD = !!DATA.publicBuild;
+
+  document.getElementById('genDate').textContent =
+    'ข้อมูลห้อง ' + rooms.length + ' ห้อง · ไฟล์ต้นทาง ณ ' + DATA.generatedAt +
+    (PUBLIC_BUILD ? ' · เวอร์ชันสาธารณะ (ไม่แสดงชื่อ/เบอร์/ราคาผู้เช่า)' : '');
+
+  // ---------- floor color (purple ชั้น 8 -> pink ชั้น 2) ----------
+  function floorColor(floor, alpha){
+    const t = (8 - floor) / (8 - 2);
+    const hue = 265 + (335 - 265) * t;
+    return `hsl(${hue.toFixed(0)} 55% ${alpha || 78}%)`;
+  }
+  function floorColorStrong(floor){
+    const t = (8 - floor) / (8 - 2);
+    const hue = 265 + (335 - 265) * t;
+    return `hsl(${hue.toFixed(0)} 46% 52%)`;
+  }
+
+  // ---------- contract expiry calc (คำนวณจากวันที่จริงตอนเปิดหน้า) ----------
+  function daysLeft(iso){
+    if(!iso) return null;
+    const end = new Date(iso + 'T00:00:00');
+    const now = new Date();
+    now.setHours(0,0,0,0);
+    return Math.round((end - now) / 86400000);
+  }
+  function expiryTier(iso){
+    const d = daysLeft(iso);
+    if(d === null) return null;
+    if(d < 0) return null; // หมดแล้ว ไม่แสดง badge (เคสพิเศษ ปกติควรอัปเดตสถานะห้อง)
+    if(d <= URGENT_DAYS) return 'urgent';
+    if(d <= WARN_DAYS) return 'warning';
+    return null;
+  }
+
+  // ---------- customer-mode visibility ----------
+  const CUSTOMER_STATUS = { moving_out: true, vacant: true };
+
+  let mode = 'staff'; // staff | customer
+  let layout = 'byFloor'; // byFloor | wholeBuilding
+  let activeFloor = 8;
+  let filterStatus = null;
+
+  const floors = [8,7,6,5,4,3,2];
+  const floorsAsc = [2,3,4,5,6,7,8]; // ลำดับเหมือนตาราง Excel ต้นฉบับ (ชั้น 2 บนสุด)
+  const wingsOrder = ['ฝั่งหลังลิฟท์','ฝั่งทางเดินยาว','เห็นเซ็นทรัล'];
+  const wingSpan = { 'ฝั่งหลังลิฟท์':[2,10], 'ฝั่งทางเดินยาว':[10,18], 'เห็นเซ็นทรัล':[18,22] };
+
+
+  function roomsForFloor(floor){
+    return rooms.filter(r => r.floor === floor).sort((a,b)=>a.col-b.col);
+  }
+
+  function renderTabs(){
+    const el = document.getElementById('floorTabs');
+    el.innerHTML = '';
+    floors.forEach(f=>{
+      const b = document.createElement('button');
+      b.className = 'tab' + (f===activeFloor ? ' active':'');
+      b.style.background = floorColorStrong(f);
+      b.innerHTML = f + '<span>ชั้น</span>';
+      b.onclick = ()=>{ activeFloor = f; render(); };
+      el.appendChild(b);
+    });
+  }
+
+  function renderSummary(){
+    const el = document.getElementById('summary');
+    el.innerHTML = '';
+    const counts = {};
+    rooms.forEach(r=>{ counts[r.status] = (counts[r.status]||0)+1; });
+    Object.keys(statusMeta).forEach(key=>{
+      if(!counts[key]) return;
+      if(mode==='customer' && !CUSTOMER_STATUS[key]) return;
+      const meta = statusMeta[key];
+      const chip = document.createElement('div');
+      chip.className = 'chip' + (filterStatus && filterStatus!==key ? ' dimmed':'');
+      chip.innerHTML = `<span class="dot" style="background:${meta.swatch}"></span>
+        <span class="num">${counts[key]}</span><span class="lbl">${meta.label}</span>`;
+      chip.onclick = ()=>{ filterStatus = (filterStatus===key) ? null : key; render(); };
+      el.appendChild(chip);
+    });
+    // contract expiry summary (staff only)
+    if(mode==='staff'){
+      const urgent = rooms.filter(r=>expiryTier(r.contractEndDate)==='urgent').length;
+      const warn = rooms.filter(r=>expiryTier(r.contractEndDate)==='warning').length;
+      if(urgent){
+        const c = document.createElement('div');
+        c.className='chip';
+        c.innerHTML = `<span class="dot" style="background:${'#e2543f'}"></span><span class="num">${urgent}</span><span class="lbl">สัญญาเหลือ ≤${URGENT_DAYS} วัน</span>`;
+        el.appendChild(c);
+      }
+      if(warn){
+        const c = document.createElement('div');
+        c.className='chip';
+        c.innerHTML = `<span class="dot" style="background:${'#f0a63a'}"></span><span class="num">${warn}</span><span class="lbl">สัญญาเหลือ ≤${WARN_DAYS} วัน</span>`;
+        el.appendChild(c);
+      }
+    }
+  }
+
+  function cardEl(r){
+    const meta = statusMeta[r.status] || statusMeta.unknown;
+    if(mode==='customer' && !CUSTOMER_STATUS[r.status]) return null;
+    if(filterStatus && r.status!==filterStatus) return null;
+
+    const card = document.createElement('div');
+    card.className = 'card';
+    card.style.background = meta.swatch;
+    if(r.status==='moving_out'){ card.style.border = '1.5px solid rgba(43,36,56,.18)'; }
+
+    const tier = expiryTier(r.contractEndDate);
+    let badges = '';
+    if(mode==='staff'){
+      if(tier==='urgent') badges += `<span class="b" style="background:${'#e2543f'}"></span>`;
+      else if(tier==='warning') badges += `<span class="b" style="background:${'#f0a63a'}"></span>`;
+      if(r.fontFlag==='purple_text') badges += `<span class="b" style="background:#7030A0" title="รอตรวจสอบความหมาย"></span>`;
+    }
+
+    card.innerHTML = `
+      <div class="hole"></div>
+      ${badges ? `<div class="badges">${badges}</div>` : ''}
+      <div class="room-no">${r.room}</div>
+      ${(mode==='staff' && r.tenantName) ? `<div class="tenant">${r.tenantName}</div>` : ''}
+      <div class="barcode"></div>
+      ${r.corner ? `<div class="cornerTag">มุม</div>` : ''}
+    `;
+    card.onclick = ()=> openDetail(r);
+    return card;
+  }
+
+  function render(){
+    document.getElementById('btnStaff').classList.toggle('active', mode==='staff');
+    document.getElementById('btnCustomer').classList.toggle('active', mode==='customer');
+    document.getElementById('btnByFloor').classList.toggle('active', layout==='byFloor');
+    document.getElementById('btnWholeBuilding').classList.toggle('active', layout==='wholeBuilding');
+    renderSummary();
+
+    const floorTabsEl = document.getElementById('floorTabs');
+    const main = document.getElementById('floorContent');
+    main.innerHTML = '';
+
+    if(layout==='byFloor'){
+      floorTabsEl.style.display = 'flex';
+      renderTabs();
+
+      const floorRooms = roomsForFloor(activeFloor);
+      let anyShown = false;
+      wingsOrder.forEach(wing=>{
+        const list = floorRooms.filter(r=>r.wing===wing);
+        const cards = list.map(cardEl).filter(Boolean);
+        if(cards.length===0) return;
+        anyShown = true;
+        const wingDiv = document.createElement('div');
+        wingDiv.className = 'wing';
+        const label = document.createElement('div');
+        label.className = 'wingLabel';
+        label.textContent = wing + ' · ชั้น ' + activeFloor;
+        wingDiv.appendChild(label);
+        const grid = document.createElement('div');
+        grid.className = 'roomGrid';
+        cards.forEach(c=>grid.appendChild(c));
+        wingDiv.appendChild(grid);
+        main.appendChild(wingDiv);
+      });
+      if(!anyShown){
+        main.innerHTML = '<div class="empty">ไม่มีห้องที่ตรงเงื่อนไขในชั้นนี้</div>';
+      }
+    } else {
+      floorTabsEl.style.display = 'none';
+      renderWholeBuilding(main);
+    }
+  }
+
+  function isVisible(r){
+    if(mode==='customer' && !CUSTOMER_STATUS[r.status]) return false;
+    return true;
+  }
+
+  function renderWholeBuilding(main){
+    const wrap = document.createElement('div');
+    wrap.className = 'wbScroll';
+    const grid = document.createElement('div');
+    grid.className = 'wbGrid';
+
+    // แถวหัวตาราง: ป้ายฝั่ง (เหมือนแถว 13 ในไฟล์ Excel ต้นฉบับ)
+    const cornerLabel = document.createElement('div');
+    grid.appendChild(cornerLabel);
+    wingsOrder.forEach(wing=>{
+      const h = document.createElement('div');
+      h.className = 'wbWingHeader';
+      h.textContent = wing;
+      h.style.gridColumn = wingSpan[wing][0] + ' / ' + wingSpan[wing][1];
+      grid.appendChild(h);
+    });
+
+    floorsAsc.forEach(floor=>{
+      const label = document.createElement('div');
+      label.className = 'wbFloorLabel';
+      label.textContent = floor;
+      label.style.background = floorColorStrong(floor);
+      label.style.gridRow = 'auto';
+      grid.appendChild(label);
+
+      const floorRooms = roomsForFloor(floor);
+      for(let col=1; col<=20; col++){
+        const r = floorRooms.find(x=>x.col===col);
+        const cell = document.createElement('div');
+        cell.className = 'wbCell';
+        cell.style.gridColumn = (col+1);
+        if(!r){
+          cell.classList.add('muted');
+          grid.appendChild(cell);
+          continue;
+        }
+        const meta = statusMeta[r.status] || statusMeta.unknown;
+        const visible = isVisible(r);
+        if(!visible){
+          cell.classList.add('muted');
+          cell.textContent = r.room.slice(-2);
+        } else {
+          cell.style.background = meta.swatch;
+          if(r.status==='moving_out'){ cell.style.border = '1.5px solid rgba(43,36,56,.2)'; }
+          cell.textContent = r.room.slice(-2);
+          if(filterStatus && r.status!==filterStatus) cell.classList.add('dimmed');
+          if(mode==='staff'){
+            const tier = expiryTier(r.contractEndDate);
+            if(tier){
+              const dot = document.createElement('div');
+              dot.className = 'wbDot';
+              dot.style.background = tier==='urgent' ? '#e2543f' : '#f0a63a';
+              cell.appendChild(dot);
+            }
+          }
+          cell.onclick = ()=> openDetail(r);
+        }
+        grid.appendChild(cell);
+      }
+    });
+
+    wrap.appendChild(grid);
+    main.appendChild(wrap);
+    const note = document.createElement('div');
+    note.className = 'wbLegendNote';
+    note.textContent = 'เลื่อนซ้าย-ขวาเพื่อดูห้องทั้งหมด · เลขในช่องคือ 2 ตัวท้ายของเลขห้อง (เช่น 815 = 15)';
+    main.appendChild(note);
+  }
+
+  function fmtMoney(n){
+    if(n===null || n===undefined || n==='') return '-';
+    return Number(n).toLocaleString('th-TH') + ' บาท';
+  }
+
+  function openDetail(r){
+    const meta = statusMeta[r.status] || statusMeta.unknown;
+
+    document.getElementById('pRoom').textContent = 'ห้อง ' + r.room;
+    const pill = document.getElementById('pStatusPill');
+    pill.textContent = meta.label;
+    pill.style.background = meta.swatch;
+
+    const tier = expiryTier(r.contractEndDate);
+    const expiryEl = document.getElementById('pExpiry');
+    expiryEl.innerHTML = '';
+    if(tier){
+      const d = daysLeft(r.contractEndDate);
+      const div = document.createElement('div');
+      div.className = 'expiryBanner';
+      div.style.background = tier==='urgent' ? '#fde8e4' : '#fdf1de';
+      div.style.color = tier==='urgent' ? '#a8362a' : '#8a5a12';
+      div.textContent = `สัญญาใกล้หมด — เหลืออีก ${d} วัน (สิ้นสุด ${r.contractEndDate})`;
+      expiryEl.appendChild(div);
+    }
+
+    const rowsData = (mode==='staff') ? [
+      !PUBLIC_BUILD && ['ผู้เช่า', r.tenantName || '-'],
+      !PUBLIC_BUILD && ['เบอร์โทร', r.phone || '-'],
+      ['ประเภทห้อง', r.roomType || '-'],
+      !PUBLIC_BUILD && ['ค่าเช่า', fmtMoney(r.price)],
+      !PUBLIC_BUILD && ['ค่าส่วนกลาง', fmtMoney(r.commonFee)],
+      ['วันสิ้นสุดสัญญา', r.contractEndDate || '-'],
+      ['ฝั่ง', r.wing],
+    ].filter(Boolean) : [
+      ['ฝั่ง', r.wing],
+      ['ชั้น', r.floor],
+    ];
+
+    const rowsEl = document.getElementById('pRows');
+    rowsEl.innerHTML = '';
+    rowsData.forEach(([k,v])=>{
+      const row = document.createElement('div');
+      row.className = 'row';
+      row.innerHTML = `<span class="k">${k}</span><span class="v">${v}</span>`;
+      rowsEl.appendChild(row);
+    });
+
+    const noteWrap = document.getElementById('pNoteWrap');
+    noteWrap.innerHTML = '';
+    if(mode==='staff' && (r.note || r.tenantNote)){
+      const box = document.createElement('div');
+      box.className = 'noteBox';
+      box.textContent = [r.note, r.tenantNote].filter(Boolean).join('\\n');
+      noteWrap.appendChild(box);
+    }
+
+    document.getElementById('overlay').classList.remove('hidden');
+  }
+
+  document.getElementById('pClose').onclick = ()=> document.getElementById('overlay').classList.add('hidden');
+  document.getElementById('overlay').onclick = (e)=>{ if(e.target.id==='overlay') e.currentTarget.classList.add('hidden'); };
+
+  document.getElementById('btnStaff').onclick = ()=>{ mode='staff'; filterStatus=null; render(); };
+  document.getElementById('btnCustomer').onclick = ()=>{ mode='customer'; filterStatus=null; render(); };
+  document.getElementById('btnByFloor').onclick = ()=>{ layout='byFloor'; render(); };
+  document.getElementById('btnWholeBuilding').onclick = ()=>{ layout='wholeBuilding'; render(); };
+
+  render();
+})();
+</script>
+</body>
+</html>
