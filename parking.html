@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#1A274A">
+<title>คิดค่าจอดรถ PD15</title>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, "Segoe UI", Tahoma, "Noto Sans Myanmar", "Myanmar Text", "Padauk", sans-serif; background: #f2f3f6; color: #1A274A; }
+  header { background: #1A274A; color: #fff; padding: 16px; font-size: 34px; line-height: 1.25; font-weight: bold; text-align: center; }
+  header .mm { display: block; font-size: 20px; font-weight: bold; color: #fff; margin-top: 2px; }
+  header small { display: block; font-size: 13px; margin-top: 4px; font-weight: normal; color: #d8c08a; }
+  main { max-width: 480px; margin: 0 auto; padding: 14px; }
+  .card { background: #fff; border-radius: 14px; padding: 14px; margin-bottom: 12px; box-shadow: 0 1px 3px rgba(0,0,0,.08); }
+  label { display: block; font-size: 18px; font-weight: bold; margin-bottom: 6px; }
+  .row { display: flex; gap: 8px; }
+  select { flex: 1; font-size: 22px; padding: 10px 4px; border: 2px solid #c9ccd6; border-radius: 10px; background: #fff; color: #1A274A; text-align: center; min-width: 0; }
+  .row.t { margin-top: 8px; align-items: center; }
+  .row.t b { font-size: 22px; }
+  .span { font-size: 15px; color: #666; margin-bottom: 4px; }
+  button { font-size: 17px; padding: 10px 12px; border: none; border-radius: 10px; background: #B78A2D; color: #fff; font-weight: bold; }
+  .quick { margin-top: 8px; display: flex; gap: 6px; flex-wrap: wrap; }
+  .quick button { background: #e7e9ef; color: #1A274A; font-size: 15px; padding: 8px 10px; }
+  .result { text-align: center; }
+  .dur { font-size: 20px; margin-bottom: 4px; }
+  .basis { font-size: 16px; color: #666; min-height: 20px; }
+  .fee { font-size: 64px; font-weight: bold; color: #B78A2D; line-height: 1.1; margin: 6px 0; }
+  .fee span { font-size: 26px; }
+  .mm { font-size: .8em; font-weight: normal; color: #555; }
+  label .mm, button .mm { display: block; }
+  .err { color: #c0392b; font-size: 18px; font-weight: bold; }
+  .rate { font-size: 15px; line-height: 1.6; }
+  .rate b { color: #1A274A; }
+  #reset .mm { color: #ddd; }
+  .rate .mm { display: block; margin-bottom: 4px; }
+  #reset { width: 100%; font-size: 19px; padding: 14px; background: #1A274A; }
+</style>
+</head>
+<body>
+<header>คิดค่าจอดรถยนต์<span class="mm">ကားရပ်နားခ တွက်ရန်</span><small>2BE HOME ประดิษฐ์มนูธรรม 15</small></header>
+<main>
+  <div class="card">
+    <label>เวลาเข้า <span class="mm">ဝင်ချိန်</span></label>
+    <div class="row"><select id="inD"></select><select id="inM"></select><select id="inY"></select></div>
+    <div class="row t"><select id="inH"></select><b>:</b><select id="inN"></select><b>น.</b></div>
+    <div class="quick">
+      <button data-shift="0">วันนี้ <span class="mm">ယနေ့</span></button>
+    </div>
+  </div>
+
+  <div class="card">
+    <label>เวลาออก <span class="mm">ထွက်ချိန်</span></label>
+    <div class="row"><select id="outD"></select><select id="outM"></select><select id="outY"></select></div>
+    <div class="row t"><select id="outH"></select><b>:</b><select id="outN"></select><b>น.</b></div>
+    <div class="quick">
+      <button id="nowBtn">ตอนนี้ <span class="mm">ယခု</span></button>
+    </div>
+  </div>
+
+  <div class="card result">
+    <div class="span" id="span"></div>
+    <div class="dur" id="dur"></div>
+    <div class="basis" id="basis"></div>
+    <div class="fee" id="fee">– <span>บาท</span></div>
+  </div>
+
+  <button id="reset">คันใหม่ <span class="mm">နောက်ကား</span></button>
+
+  <div class="card rate" style="margin-top:12px">
+    <b>อัตราค่าจอด <span class="mm">ရပ်နားခနှုန်း</span></b>
+    • 30 นาทีแรก ฟรี<span class="mm">ပထမ 30 မိနစ် အခမဲ့</span>
+    • ชั่วโมงละ 20 บาท (เกินชั่วโมงแม้ 1 นาที ปัดเป็น 1 ชม.)<span class="mm">တစ်နာရီ 20 ဘတ် (1 မိနစ်ကျော်လျှင် 1 နာရီ တွက်သည်)</span>
+    • ตั้งแต่ 5 ชม. ขึ้นไป (เกิน 4 ชม.) เหมา 100 บาท/วัน<span class="mm">4 နာရီကျော်လျှင် တစ်ရက် 100 ဘတ်</span>
+    • นับวันทุก 24 ชม. จากเวลาเข้า<span class="mm">ဝင်ချိန်မှစ၍ 24 နာရီကို တစ်ရက် တွက်သည်</span>
+    • เกิน 24 ชม. แม้ 1 นาที คิดเพิ่มอีก 1 วัน (วันละ 100 บาท)<span class="mm">24 နာရီ 1 မိနစ်ကျော်လျှင်ပင် နောက်ထပ် 1 ရက် (100 ဘတ်)</span>
+  </div>
+</main>
+
+<script>
+const RATE_HOUR = 20, RATE_DAY = 100, DAY_MIN = 1440, GRACE = 30;
+
+// คำนวณค่าจอดจากจำนวนนาที
+function calcFee(mins) {
+  if (mins <= DAY_MIN) {
+    const hours = mins <= GRACE ? 0 : Math.ceil(mins / 60);
+    const fee = Math.min(hours * RATE_HOUR, RATE_DAY);
+    let basis;
+    if (hours === 0) basis = "ไม่เกิน 30 นาที ฟรี / အခမဲ့";
+    else if (hours * RATE_HOUR >= RATE_DAY) basis = "ตั้งแต่ 5 ชม. ขึ้นไป เหมา 1 วัน / တစ်ရက်နှုန်း";
+    else basis = "คิด " + hours + " ชม. × " + RATE_HOUR + " บาท / " + hours + " နာရီ";
+    return { fee, basis };
+  }
+  const days = Math.ceil(mins / DAY_MIN);
+  return { fee: days * RATE_DAY, basis: "คิด " + days + " วัน × " + RATE_DAY + " บาท / " + days + " ရက်" };
+}
+
+const $ = id => document.getElementById(id);
+const pad = n => String(n).padStart(2, "0");
+const fmt = d => pad(d.getDate()) + "/" + pad(d.getMonth() + 1) + "/" + (d.getFullYear() + 543) + " " + pad(d.getHours()) + ":" + pad(d.getMinutes()) + " น.";
+
+function fill(id, items) { $(id).innerHTML = items.map(([v, t]) => '<option value="' + v + '">' + t + '</option>').join(""); }
+function range(a, b, f) { const r = []; for (let i = a; i <= b; i++) r.push([i, f(i)]); return r; }
+const thisYear = new Date().getFullYear();
+["in", "out"].forEach(p => {
+  fill(p + "D", [["", "วัน ရက်"]].concat(range(1, 31, pad)));
+  fill(p + "M", [["", "เดือน လ"]].concat(range(0, 11, i => pad(i + 1))));
+  fill(p + "Y", range(thisYear - 1, thisYear, y => y + 543));
+  fill(p + "H", [["", "ชม. နာရီ"]].concat(range(0, 23, pad)));
+  fill(p + "N", [["", "นาที မိနစ်"]].concat(range(0, 59, pad)));
+});
+
+function setDate(p, d) { $(p + "D").value = d.getDate(); $(p + "M").value = d.getMonth(); $(p + "Y").value = d.getFullYear(); }
+function setTime(p, d) { $(p + "H").value = d.getHours(); $(p + "N").value = d.getMinutes(); }
+function setNow() { const n = new Date(); setDate("out", n); setTime("out", n); }
+function readDT(p) {
+  const v = ["D", "M", "Y", "H", "N"].map(k => $(p + k).value);
+  if (v.some(x => x === "")) return null;
+  const [D, M, Y, H, N] = v.map(Number);
+  const d = new Date(Y, M, D, H, N);
+  if (d.getDate() !== D) return "bad";
+  return d;
+}
+function blank(msg) { $("span").textContent = ""; $("dur").innerHTML = msg; $("basis").textContent = ""; $("fee").innerHTML = "– <span>บาท</span>"; }
+function update() {
+  const a = readDT("in"), b = readDT("out");
+  if (a === "bad" || b === "bad") return blank('<span class="err">วันที่ไม่ถูกต้อง<br>ရက်စွဲ မမှန်ပါ</span>');
+  if (!a || !b) return blank('กรอกเวลาเข้า<br><span class="mm">ဝင်ချိန် ထည့်ပါ</span>');
+  const mins = Math.round((b - a) / 60000);
+  if (mins < 0) return blank('<span class="err">เวลาออกก่อนเวลาเข้า<br>ထွက်ချိန်က ဝင်ချိန်ထက် စောနေသည်</span>');
+  const d = Math.floor(mins / DAY_MIN), h = Math.floor((mins % DAY_MIN) / 60), m = mins % 60;
+  $("span").textContent = fmt(a) + "  →  " + fmt(b);
+  $("dur").innerHTML = "จอด " + (d ? d + " วัน " : "") + h + " ชม. " + m + " นาที" +
+    '<br><span class="mm">' + (d ? d + " ရက် " : "") + h + " နာရီ " + m + " မိနစ်</span>";
+  const r = calcFee(mins);
+  $("basis").textContent = r.basis;
+  $("fee").innerHTML = r.fee.toLocaleString() + " <span>บาท ဘတ်</span>";
+}
+function reset() {
+  setDate("in", new Date()); $("inH").value = ""; $("inN").value = "";
+  setNow(); update();
+}
+
+document.querySelectorAll("[data-shift]").forEach(btn => btn.onclick = () => {
+  const d = new Date(); d.setDate(d.getDate() + Number(btn.dataset.shift));
+  setDate("in", d); update();
+});
+$("nowBtn").onclick = () => { setNow(); update(); };
+$("reset").onclick = reset;
+document.querySelectorAll("select").forEach(el => el.addEventListener("change", update));
+reset();
+</script>
+</body>
+</html>
