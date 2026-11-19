@@ -74,16 +74,22 @@
     • 30 นาทีแรก ฟรี<span class="mm">ပထမ 30 မိနစ် အခမဲ့</span>
     • ชั่วโมงละ 20 บาท (เกินชั่วโมงแม้ 1 นาที ปัดเป็น 1 ชม.)<span class="mm">တစ်နာရီ 20 ဘတ် (1 မိနစ်ကျော်လျှင် 1 နာရီ တွက်သည်)</span>
     • ตั้งแต่ 5 ชม. ขึ้นไป (เกิน 4 ชม.) เหมา 100 บาท/วัน<span class="mm">4 နာရီကျော်လျှင် တစ်ရက် 100 ဘတ်</span>
-    • นับวันทุก 24 ชม. จากเวลาเข้า<span class="mm">ဝင်ချိန်မှစ၍ 24 နာရီကို တစ်ရက် တွက်သည်</span>
-    • เกิน 24 ชม. แม้ 1 นาที คิดเพิ่มอีก 1 วัน (วันละ 100 บาท)<span class="mm">24 နာရီ 1 မိနစ်ကျော်လျှင်ပင် နောက်ထပ် 1 ရက် (100 ဘတ်)</span>
+    • เกิน 24 ชม. แม้ 1 นาที นับตามวันที่ในปฏิทิน (วันเข้า–วันออก) วันละ 100 บาท<span class="mm">24 နာရီ 1 မိနစ်ကျော်လျှင် ဝင်သည့်ရက်မှ ထွက်သည့်ရက်အထိ ရက်အလိုက် တစ်ရက် 100 ဘတ်</span>
+    • เช่น เข้า 17 ออก 19 = 3 วัน = 300 บาท<span class="mm">ဥပမာ 17 ရက်ဝင် 19 ရက်ထွက် = 3 ရက် = 300 ဘတ်</span>
   </div>
 </main>
 
 <script>
 const RATE_HOUR = 20, RATE_DAY = 100, DAY_MIN = 1440, GRACE = 30;
 
-// คำนวณค่าจอดจากจำนวนนาที
-function calcFee(mins) {
+// คำนวณค่าจอด: ไม่เกิน 24 ชม. คิดรายชั่วโมง (30 นาทีแรกฟรี, สูงสุด 100)
+// เกิน 24 ชม. (แม้ 1 นาที) → นับจำนวนวันที่ตามปฏิทินที่รถจอดอยู่ (วันเข้า–วันออก) × 100
+function calDays(a, b) {
+  const d0 = new Date(a.getFullYear(), a.getMonth(), a.getDate());
+  const d1 = new Date(b.getFullYear(), b.getMonth(), b.getDate());
+  return Math.round((d1 - d0) / 86400000) + 1;
+}
+function calcFee(mins, a, b) {
   if (mins <= DAY_MIN) {
     const hours = mins <= GRACE ? 0 : Math.ceil(mins / 60);
     const fee = Math.min(hours * RATE_HOUR, RATE_DAY);
@@ -93,8 +99,8 @@ function calcFee(mins) {
     else basis = "คิด " + hours + " ชม. × " + RATE_HOUR + " บาท / " + hours + " နာရီ";
     return { fee, basis };
   }
-  const days = Math.ceil(mins / DAY_MIN);
-  return { fee: days * RATE_DAY, basis: "คิด " + days + " วัน × " + RATE_DAY + " บาท / " + days + " ရက်" };
+  const days = calDays(a, b);
+  return { fee: days * RATE_DAY, basis: "เกิน 24 ชม. นับตามวันที่ " + days + " วัน × " + RATE_DAY + " บาท / " + days + " ရက်" };
 }
 
 const $ = id => document.getElementById(id);
@@ -134,7 +140,7 @@ function update() {
   $("span").textContent = fmt(a) + "  →  " + fmt(b);
   $("dur").innerHTML = "จอด " + (d ? d + " วัน " : "") + h + " ชม. " + m + " นาที" +
     '<br><span class="mm">' + (d ? d + " ရက် " : "") + h + " နာရီ " + m + " မိနစ်</span>";
-  const r = calcFee(mins);
+  const r = calcFee(mins, a, b);
   $("basis").textContent = r.basis;
   $("fee").innerHTML = r.fee.toLocaleString() + " <span>บาท ဘတ်</span>";
 }
